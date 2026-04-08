@@ -1376,14 +1376,8 @@ export type GQLIgnoreDecisionComponent =
   };
 
 export const GQLIntegration = {
-  Akismet: 'AKISMET',
   GoogleContentSafetyApi: 'GOOGLE_CONTENT_SAFETY_API',
-  L1Ght: 'L1GHT',
-  MicrosoftAzureContentModerator: 'MICROSOFT_AZURE_CONTENT_MODERATOR',
-  Oopspam: 'OOPSPAM',
   OpenAi: 'OPEN_AI',
-  SightEngine: 'SIGHT_ENGINE',
-  TwoHat: 'TWO_HAT',
   Zentropi: 'ZENTROPI',
 } as const;
 
