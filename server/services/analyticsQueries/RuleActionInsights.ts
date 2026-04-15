@@ -16,16 +16,11 @@ import {
   type Integration,
 } from '../../services/signalsService/index.js';
 import { jsonParse, type JsonOf } from '../../utils/encoding.js';
-import {
-  type Excluding,
-  type FixSingleTableReturnedRowType,
-} from '../../utils/kysely.js';
 import { getUtcDateOnlyString, YEAR_MS } from '../../utils/time.js';
 import { type ConditionSetWithResultAsLogged } from '../analyticsLoggers/ruleExecutionLoggingUtils.js';
 import {
   warehouseDateToDate,
   warehouseDateToDateOnlyString,
-  type RuleExecutionsRow,
   type WarehouseDate,
   type DataWarehousePublicSchema,
 } from '../../storage/dataWarehouse/warehouseSchema.js';
@@ -38,6 +33,7 @@ type RulePassSample = {
   itemTypeName: string;
   itemTypeId: string;
   userId: string | null;
+  userTypeId: string | null;
   content: JsonOf<NormalizedItemData> | undefined;
   environment: RuleEnvironment;
   policyIds: readonly string[];
@@ -291,13 +287,21 @@ class RuleActionInsights {
       )
       .exhaustive();
 
-    // Cast to this; justified by where clause on ITEM_DATA above.
-    type ResultRow = FixSingleTableReturnedRowType<
-      typeof finalQuery,
-      Excluding<RuleExecutionsRow, 'ITEM_DATA', null>
-    >;
+    type ResultRow = {
+      date: WarehouseDate;
+      ts: WarehouseDate;
+      result: JsonOf<ConditionSetWithResultAsLogged> | null;
+      contentId: string;
+      itemTypeName: string;
+      itemTypeId: string;
+      userId: string | null;
+      userTypeId: string | null;
+      content: JsonOf<NormalizedItemData>;
+      environment: RuleEnvironment;
+      policyIds: readonly string[];
+    };
 
-    return (await finalQuery.$narrowType<ResultRow>().execute()).map((it) => ({
+    return (await finalQuery.$castTo<ResultRow>().execute()).map((it) => ({
       ...it,
       date: warehouseDateToDate(it.date),
       ts: warehouseDateToDate(it.ts),
