@@ -17,7 +17,8 @@ describe('POST Report', () => {
     deps: Awaited<ReturnType<typeof makeMockedServer>>['deps'],
     request: Awaited<ReturnType<typeof makeMockedServer>>['request'],
     shutdown: Awaited<ReturnType<typeof makeMockedServer>>['shutdown'],
-    apiKey: Awaited<ReturnType<typeof createOrg>>['apiKey'];
+    apiKey: Awaited<ReturnType<typeof createOrg>>['apiKey'],
+    orgCleanup: Awaited<ReturnType<typeof createOrg>>['cleanup'];
 
   const getBulkWriteMock = () =>
     deps.DataWarehouseAnalytics.bulkWrite as jest.MockedFunction<
@@ -29,10 +30,12 @@ describe('POST Report', () => {
 
     models = deps.Sequelize;
 
-    ({ apiKey } = await createOrg(
-      models,
-      deps.ModerationConfigService,
-      deps.ApiKeyService,
+    ({ apiKey, cleanup: orgCleanup } = await createOrg(
+      {
+        KyselyPg: deps.KyselyPg,
+        ModerationConfigService: deps.ModerationConfigService,
+        ApiKeyService: deps.ApiKeyService,
+      },
       orgId,
     ));
     const userType = await deps.ModerationConfigService.createUserType(orgId, {
@@ -119,8 +122,8 @@ describe('POST Report', () => {
   });
 
   afterAll(async () => {
-    const { Org, User, ItemType } = models;
-    await Org.destroy({ where: { id: orgId } });
+    const { User, ItemType } = models;
+    await orgCleanup();
     await ItemType.destroy({ where: { id: contentTypeId } });
     await ItemType.destroy({ where: { id: userTypeId } });
     await ItemType.destroy({ where: { id: threadTypeId } });

@@ -75,6 +75,7 @@ describe('ModerationConfigService', () => {
   ] satisfies Policy[];
 
   const dummyOrgId = uid();
+  let dummyOrgCleanup: () => Promise<void>;
   const dummySchema = [
     { name: 'fakeField', type: 'STRING', required: false, container: null },
   ] as const;
@@ -118,19 +119,22 @@ describe('ModerationConfigService', () => {
     );
 
     const createOrgResult = await createOrg(
-      { Org: container.Sequelize.Org },
-      container.ModerationConfigService,
-      container.ApiKeyService,
+      {
+        KyselyPg: container.KyselyPg,
+        ModerationConfigService: container.ModerationConfigService,
+        ApiKeyService: container.ApiKeyService,
+      },
       dummyOrgId,
     );
 
     defaultUserItemType = createOrgResult.defaultUserItemType;
+    dummyOrgCleanup = createOrgResult.cleanup;
     allCreatedItemTypes = [...allCreatedItemTypes, defaultUserItemType];
   });
 
   afterAll(async () => {
     const { Sequelize: models } = (await getBottle()).container;
-    await models.Org.destroy({ where: { id: dummyOrgId } });
+    await dummyOrgCleanup();
 
     await Promise.all([
       container.KyselyPg.destroy(),
@@ -193,9 +197,11 @@ describe('ModerationConfigService', () => {
   describe('#getRuleByIdAndOrg', () => {
     const testWithRuleRow = makeTestWithFixture(async () => {
       const { org, cleanup: orgCleanup } = await createOrg(
-        { Org: container.Sequelize.Org },
-        container.ModerationConfigService,
-        container.ApiKeyService,
+        {
+          KyselyPg: container.KyselyPg,
+          ModerationConfigService: container.ModerationConfigService,
+          ApiKeyService: container.ApiKeyService,
+        },
         uid(),
       );
       const { user, cleanup: userCleanup } = await createUser(
@@ -248,9 +254,11 @@ describe('ModerationConfigService', () => {
       'returns null when the org id does not match (IDOR guard)',
       async ({ ruleId }) => {
         const { org: otherOrg, cleanup: otherOrgCleanup } = await createOrg(
-          { Org: container.Sequelize.Org },
-          container.ModerationConfigService,
-          container.ApiKeyService,
+          {
+            KyselyPg: container.KyselyPg,
+            ModerationConfigService: container.ModerationConfigService,
+            ApiKeyService: container.ApiKeyService,
+          },
           uid(),
         );
         try {
@@ -702,9 +710,11 @@ describe('ModerationConfigService', () => {
           'should throw NotFound when called with the wrong org',
           async ({ action }) => {
             const otherOrg = await createOrg(
-              { Org: container.Sequelize.Org },
-              container.ModerationConfigService,
-              container.ApiKeyService,
+              {
+                KyselyPg: container.KyselyPg,
+                ModerationConfigService: container.ModerationConfigService,
+                ApiKeyService: container.ApiKeyService,
+              },
               uid(),
             );
             try {
@@ -894,9 +904,11 @@ describe('ModerationConfigService', () => {
           'should return false when called with the wrong org and leave the row intact',
           async ({ action }) => {
             const otherOrg = await createOrg(
-              { Org: container.Sequelize.Org },
-              container.ModerationConfigService,
-              container.ApiKeyService,
+              {
+                KyselyPg: container.KyselyPg,
+                ModerationConfigService: container.ModerationConfigService,
+                ApiKeyService: container.ApiKeyService,
+              },
               uid(),
             );
             try {
@@ -1078,9 +1090,11 @@ describe('ModerationConfigService', () => {
           // applies-to-all rows (they'd otherwise leak across orgs since the
           // ANY(...) predicate alone has no tenant scope).
           const otherOrg = await createOrg(
-            { Org: container.Sequelize.Org },
-            container.ModerationConfigService,
-            container.ApiKeyService,
+            {
+              KyselyPg: container.KyselyPg,
+              ModerationConfigService: container.ModerationConfigService,
+              ApiKeyService: container.ApiKeyService,
+            },
             uid(),
           );
           try {
@@ -1141,9 +1155,11 @@ describe('ModerationConfigService', () => {
         'should not return actions when called with a different org',
         async ({ rule }) => {
           const otherOrg = await createOrg(
-            { Org: container.Sequelize.Org },
-            container.ModerationConfigService,
-            container.ApiKeyService,
+            {
+              KyselyPg: container.KyselyPg,
+              ModerationConfigService: container.ModerationConfigService,
+              ApiKeyService: container.ApiKeyService,
+            },
             uid(),
           );
           try {
@@ -1177,9 +1193,11 @@ describe('ModerationConfigService', () => {
     describe('Mutations', () => {
       const testWithUserAndOrg = makeTestWithFixture(async () => {
         const { org, cleanup: orgCleanup } = await createOrg(
-          { Org: container.Sequelize.Org },
-          container.ModerationConfigService,
-          container.ApiKeyService,
+          {
+            KyselyPg: container.KyselyPg,
+            ModerationConfigService: container.ModerationConfigService,
+            ApiKeyService: container.ApiKeyService,
+          },
           uid(),
         );
 

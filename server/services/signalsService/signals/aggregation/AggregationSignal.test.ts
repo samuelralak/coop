@@ -27,12 +27,11 @@ describe('AggregationSignal', () => {
       RuleAPIDataSource,
       ActionAPIDataSource,
       ApiKeyService,
+      KyselyPg,
     } = deps;
 
     const { org, cleanup: orgCleanup } = await createOrg(
-      models,
-      ModerationConfigService,
-      ApiKeyService,
+      { KyselyPg, ModerationConfigService, ApiKeyService },
       uid(),
     );
 

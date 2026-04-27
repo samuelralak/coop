@@ -7,6 +7,7 @@ import type {
 import { JsonObject, JsonValue } from 'type-fest';
 
 import type { UserHistoryForGQL } from '../graphql/datasources/InvestigationApi.js';
+import type { GraphQLOrgParent } from '../graphql/datasources/orgKyselyPersistence.js';
 import type {
   ContentItemTypeResolversParentType,
   ItemTypeResolversParentType,
@@ -17,7 +18,6 @@ import type {
 } from '../graphql/modules/itemType.js';
 import type { ReportingInsights } from '../graphql/modules/reporting.js';
 import type { HashBank } from '../models/HashBankModel.js';
-import type { Org } from '../models/OrgModel.js';
 import type { Backtest } from '../models/rules/BacktestModel.js';
 import type { ItemType } from '../models/rules/ItemTypeModel.js';
 import type {
@@ -5795,7 +5795,7 @@ export type GQLResolversTypes = {
   ManualReviewQueue: ResolverTypeWrapper<ManualReviewQueue>;
   ManualReviewQueueNameExistsError: ResolverTypeWrapper<GQLManualReviewQueueNameExistsError>;
   MatchingBankNameExistsError: ResolverTypeWrapper<GQLMatchingBankNameExistsError>;
-  MatchingBanks: ResolverTypeWrapper<Org>;
+  MatchingBanks: ResolverTypeWrapper<GraphQLOrgParent>;
   MatchingValues: ResolverTypeWrapper<GQLMatchingValues>;
   MessageWithIpAddress: ResolverTypeWrapper<
     Omit<GQLMessageWithIpAddress, 'message'> & {
@@ -5922,7 +5922,7 @@ export type GQLResolversTypes = {
   NotificationType: GQLNotificationType;
   OpenAiIntegrationApiCredential: ResolverTypeWrapper<GQLOpenAiIntegrationApiCredential>;
   OpenAiIntegrationApiCredentialInput: GQLOpenAiIntegrationApiCredentialInput;
-  Org: ResolverTypeWrapper<Org>;
+  Org: ResolverTypeWrapper<GraphQLOrgParent>;
   OrgWithEmailExistsError: ResolverTypeWrapper<GQLOrgWithEmailExistsError>;
   OrgWithNameExistsError: ResolverTypeWrapper<GQLOrgWithNameExistsError>;
   PageInfo: ResolverTypeWrapper<GQLPageInfo>;
@@ -6530,7 +6530,7 @@ export type GQLResolversParentTypes = {
   ManualReviewQueue: ManualReviewQueue;
   ManualReviewQueueNameExistsError: GQLManualReviewQueueNameExistsError;
   MatchingBankNameExistsError: GQLMatchingBankNameExistsError;
-  MatchingBanks: Org;
+  MatchingBanks: GraphQLOrgParent;
   MatchingValues: GQLMatchingValues;
   MessageWithIpAddress: Omit<GQLMessageWithIpAddress, 'message'> & {
     message: GQLResolversParentTypes['ContentItem'];
@@ -6619,7 +6619,7 @@ export type GQLResolversParentTypes = {
   Notification: Notification;
   OpenAiIntegrationApiCredential: GQLOpenAiIntegrationApiCredential;
   OpenAiIntegrationApiCredentialInput: GQLOpenAiIntegrationApiCredentialInput;
-  Org: Org;
+  Org: GraphQLOrgParent;
   OrgWithEmailExistsError: GQLOrgWithEmailExistsError;
   OrgWithNameExistsError: GQLOrgWithNameExistsError;
   PageInfo: GQLPageInfo;

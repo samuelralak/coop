@@ -205,7 +205,6 @@ const Org: GQLOrgResolvers = {
     if (!user || user.orgId !== org.id) {
       throw unauthenticatedError('User required.');
     }
-
     return context.services.ModerationConfigService.getActions({
       orgId: org.id,
       readFromReplica: true,
@@ -216,7 +215,7 @@ const Org: GQLOrgResolvers = {
     if (!user || user.orgId !== org.id) {
       throw unauthenticatedError('User required.');
     }
-    return org.getContentTypes();
+    return context.dataSources.orgAPI.getSequelizeContentTypesForOrg(org.id);
   },
   async itemTypes(org, _, context) {
     const user = context.getUser();
@@ -232,7 +231,7 @@ const Org: GQLOrgResolvers = {
     if (!user || user.orgId !== org.id) {
       throw unauthenticatedError('User required.');
     }
-    return org.getUsers();
+    return context.dataSources.orgAPI.getOrgUsersForGraphQL(org.id);
   },
   async pendingInvites(org, _, context): Promise<GQLPendingInvite[]> {
     const user = context.getUser();
@@ -253,7 +252,7 @@ const Org: GQLOrgResolvers = {
     if (!user || user.orgId !== org.id) {
       throw unauthenticatedError('User required.');
     }
-    return org.getRules();
+    return context.dataSources.ruleAPI.getGraphQLRulesForOrg(org.id);
   },
   async routingRules(org, _, context) {
     const user = context.getUser();
@@ -466,10 +465,11 @@ const Org: GQLOrgResolvers = {
       org.id,
     );
   },
-  async usersWhoCanReviewEveryQueue(org, _, __) {
-    return (await org.getUsers()).filter((user) =>
-      user.getPermissions().includes('EDIT_MRT_QUEUES'),
+  async usersWhoCanReviewEveryQueue(org, _, context) {
+    const users = await context.dataSources.orgAPI.getOrgUsersForGraphQL(
+      org.id,
     );
+    return users.filter((u) => u.getPermissions().includes('EDIT_MRT_QUEUES'));
   },
   async defaultInterfacePreferences(org, _, context) {
     const orgDefaults =

@@ -20,10 +20,12 @@ describe('POST Content', () => {
   let request: Awaited<ReturnType<typeof makeMockedServer>>['request'],
     shutdown: Awaited<ReturnType<typeof makeMockedServer>>['shutdown'],
     apiKey: Awaited<ReturnType<typeof createOrg>>['apiKey'],
+    orgCleanup: Awaited<ReturnType<typeof createOrg>>['cleanup'],
     models: Dependencies['Sequelize'],
     ModerationConfigService: Dependencies['ModerationConfigService'],
     ApiKeyService: Dependencies['ApiKeyService'],
-    analytics: Dependencies['DataWarehouseAnalytics'];
+    analytics: Dependencies['DataWarehouseAnalytics'],
+    KyselyPg: Dependencies['KyselyPg'];
 
   beforeAll(async () => {
     ({
@@ -34,15 +36,14 @@ describe('POST Content', () => {
         DataWarehouseAnalytics: analytics,
         ModerationConfigService,
         ApiKeyService,
+        KyselyPg,
       },
     } = await makeMockedServer());
 
-    const { User, Org } = models;
+    const { User } = models;
 
-    ({ apiKey } = await createOrg(
-      { Org },
-      ModerationConfigService,
-      ApiKeyService,
+    ({ apiKey, cleanup: orgCleanup } = await createOrg(
+      { KyselyPg, ModerationConfigService, ApiKeyService },
       orgId,
     ));
 
@@ -92,8 +93,8 @@ describe('POST Content', () => {
   });
 
   afterAll(async () => {
-    const { Org, User } = models;
-    await Org.destroy({ where: { id: orgId } });
+    const { User } = models;
+    await orgCleanup();
     await ModerationConfigService.deleteItemType({
       orgId,
       itemTypeId: contentType1.id,
