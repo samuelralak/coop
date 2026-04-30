@@ -1870,7 +1870,11 @@ export default function RuleForm() {
   */
 
   return (
-    <div className="flex flex-col test-start">
+    // relative: contains the Radix Switch hidden inputs (rendered when the
+    // advanced settings section is expanded). Without a positioned ancestor
+    // they escape the inner scroll container and extend window scrollHeight
+    // past the form's content. See issue #168.
+    <div className="flex flex-col test-start relative">
       <Helmet>
         <title>{id == null ? 'Create Rule' : 'Update Rule'}</title>
       </Helmet>
